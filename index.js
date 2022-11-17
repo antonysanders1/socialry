@@ -52,6 +52,42 @@ app.post('/payment-test', cors(), async(req, res) => {
     }
 })
 
+app.post('/payment', cors(), async(req, res) => {
+    // const stripe = require('stripe')(functions.config().stripe.testpubkey)
+    let { amount, id, description, email} = req.body
+    
+    try {
+        const payment = await stripe.paymentIntents.create({
+            payment_method_types: ['card'],
+            amount,
+            currency: "usd",
+            description,
+            payment_method: id,
+            confirm: true,
+            // customer: email,
+            // application_fee_amount: fee,
+            receipt_email: email,
+            // transfer_data: {
+            //     destination: proStripeId,
+            //   },
+            //   on_behalf_of: proStripeId,
+        })
+        console.log("Payment:", payment)
+        res.json({
+            message: "Payment Succesful",
+            success: true
+        })
+    } catch (error) {
+        console.log("Payment 2 Pro Error:", error)
+        res.json({
+            message: "Payment Failed",
+            success: false
+        })
+
+
+    }
+})
+
 exports.app = functions.runWith({timeoutSeconds:30, memory:'1GB'}).https.onRequest(app);
 
 //
